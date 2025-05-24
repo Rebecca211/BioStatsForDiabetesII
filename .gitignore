@@ -1,0 +1,9 @@
+.vs/
+*.vsidx
+*.user
+*.suo
+*.pyc
+__pycache__/
+*.zip
+venv/
+.env/
