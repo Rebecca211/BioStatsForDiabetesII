@@ -22,9 +22,10 @@ def render_predict(df, features, model):
         "Age": (1.0, 120.0)
     }
 
-    left, right = st.columns([1.5, 1])
+    # Create two side-by-side columns
+    col_form, col_result = st.columns([1.2, 1])
 
-    with left:
+    with col_form:
         st.markdown("### 📝 Patient Data")
         with st.form("manual_input_form"):
             manual_input = {}
@@ -32,23 +33,32 @@ def render_predict(df, features, model):
             for i, feature in enumerate(features):
                 min_val, max_val = bounds.get(feature, (0.0, 9999.0))
                 with cols[i % 2]:
-                    manual_input[feature] = st.number_input(
-                        label=feature,
-                        value=float(df[feature].median()),
-                        min_value=min_val,
-                        max_value=max_val,
-                        format="%.1f"
+                    # Remove stepper (+/-) by using text_input with float conversion
+                    user_val = st.text_input(
+                        label=f"{feature} ({min_val}-{max_val})",
+                        value=f"{df[feature].median():.1f}",
+                        key=feature
                     )
+                    try:
+                        val = float(user_val)
+                        manual_input[feature] = val
+                    except ValueError:
+                        manual_input[feature] = None  # Invalid input for now
+
             submitted = st.form_submit_button("🚀 Predict")
 
     if submitted:
-        invalid_fields = [f for f in features if not bounds[f][0] <= manual_input[f] <= bounds[f][1]]
+        # Validation
+        invalid_fields = [
+            f for f in features
+            if manual_input[f] is None or not bounds[f][0] <= manual_input[f] <= bounds[f][1]
+        ]
         if invalid_fields:
-            st.warning("🚫 Some input values are outside expected ranges.")
+            st.warning("🚫 Some input values are missing or out of bounds.")
             st.markdown(f"**Check fields:** {', '.join(invalid_fields)}")
             return
 
-        # Store in session state
+        # Store input in session state
         st.session_state['user_input'] = manual_input
 
         manual_array = np.array(list(manual_input.values())).reshape(1, -1)
@@ -59,10 +69,11 @@ def render_predict(df, features, model):
             'prob': manual_prob
         }
 
-        result_col1, result_col2 = st.columns([1, 1])
-        with result_col1:
-            st.markdown("### 🧠 Result")
+        # Show result in right column
+        with col_result:
+            st.markdown("### 🧠 Prediction Result")
             st.metric("Prediction", "🩺 Diabetes" if manual_class else "✅ No Diabetes", f"{manual_prob*100:.1f}%")
+
             st.markdown(f"""
             <div style="background-color:#f0f0f0; border-radius:6px; padding:2px; margin: 5px 0;">
               <div style="width:{manual_prob*100:.1f}%; background-color:#007aff;
@@ -72,25 +83,20 @@ def render_predict(df, features, model):
             </div>
             """, unsafe_allow_html=True)
 
-        with result_col2:
             if manual_prob >= 0.7:
                 st.error("🟥 High Risk")
-                st_lottie(load_lottie("high_risk.json"), height=140)
+                st_lottie(load_lottie("high_risk.json"), height=120)
             elif manual_prob >= 0.4:
                 st.warning("🟧 Moderate Risk")
-                st_lottie(load_lottie("medium_risk.json"), height=140)
+                st_lottie(load_lottie("medium_risk.json"), height=120)
             else:
                 st.success("🟩 Low Risk")
-                st_lottie(load_lottie("low_risk.json"), height=140)
+                st_lottie(load_lottie("low_risk.json"), height=120)
 
-      
-
-        # QR code
-        st.markdown("### 📱 On Your Phone")
-        app_url = "https://your-app-url.streamlit.app"
-        qr_img = qrcode.make(app_url)
-        buf = BytesIO()
-        qr_img.save(buf, format="PNG")
-        st.image(buf.getvalue(), caption="Scan this QR", width=180)
-        st.markdown("___")
-        st.markdown("🧬 _AI analysis based on input health metrics._")
+            st.markdown("### 📱 Scan for Mobile")
+            app_url = "https://your-app-url.streamlit.app"
+            qr_img = qrcode.make(app_url)
+            buf = BytesIO()
+            qr_img.save(buf, format="PNG")
+            st.image(buf.getvalue(), caption="Open on Phone", width=160)
+            st.markdown("_AI-based prediction from clinical metrics._")

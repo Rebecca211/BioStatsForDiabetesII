@@ -1,91 +1,104 @@
+
 import streamlit as st
 import pandas as pd
+import numpy as np
+import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 
 def render_overview(df):
-    st.markdown("<h2 style='text-align: center;'>🧬 Diabetes Risk Analytics Dashboard</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Explore key insights, risk indicators, and filtered breakdowns of the dataset.</p>", unsafe_allow_html=True)
+    st.markdown("## 📊 Diabetes Dashboard Overview")
+    st.markdown("#### _Understand the population distribution, outcomes, and clinical patterns._")
 
-    # Filter by Age Group
-    age_bins = pd.cut(df["Age"], bins=[0, 20, 30, 40, 50, 60, 70, 100], right=False)
-    df["AgeGroup"] = age_bins.astype(str)
-    with st.expander("🎚️ Filter: Select Age Group"):
-        selected_age_group = st.selectbox("Choose Age Group", options=sorted(df["AgeGroup"].unique()))
-    filtered_df = df[df["AgeGroup"] == selected_age_group]
+    features = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'Age']
 
-    diabetes_pct = filtered_df['Outcome'].mean() * 100 if len(filtered_df) > 0 else 0
-
-    # KPIs
-    st.markdown("### 📌 Key Metrics")
-    kpi1, kpi2, kpi3 = st.columns(3)
+    # --- Metrics Row ---
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     with kpi1:
-        st.metric("👥 Group Size", len(filtered_df))
+        st.metric("👥 Total Patients", f"{len(df)}")
     with kpi2:
-        st.metric("🩺 Diabetes Rate", f"{diabetes_pct:.1f}%")
+        st.metric("💉 Diabetes Rate", f"{df['Outcome'].mean()*100:.1f}%")
     with kpi3:
-        st.metric("🧪 Avg Glucose", f"{filtered_df['Glucose'].mean():.1f}")
+        st.metric("🧪 Avg Glucose", f"{df['Glucose'].mean():.1f}")
+    with kpi4:
+        st.metric("📏 Avg BMI", f"{df['BMI'].mean():.1f}")
 
-    # Gauge
-    st.markdown("### 🧭 Diabetes Risk Gauge")
-    fig, ax = plt.subplots(figsize=(4, 2), dpi=120)
-    ax.axis("equal")
-    ax.set_xlim(-1.2, 1.2)
-    ax.set_ylim(-0.2, 1.2)
-    ax.axis("off")
-    wedge_colors = ['#28a745', '#ffc107', '#dc3545']
-    ax.pie([40, 30, 30], startangle=180, colors=wedge_colors, radius=1.0)
-    angle = 180 + (diabetes_pct / 100) * 180
-    ax.annotate('', xy=(0.85 * np.cos(np.radians(angle)), 0.85 * np.sin(np.radians(angle))), xytext=(0, 0),
-                arrowprops=dict(facecolor='black', shrink=0.05, width=2, headwidth=8))
-    ax.text(0, -0.1, f"{diabetes_pct:.1f}%", ha='center', fontsize=12, fontweight='bold')
-    ax.text(-1, -0.2, 'Low', fontsize=9, color='#28a745')
-    ax.text(0, -0.3, 'Moderate', fontsize=9, color='#ffc107')
-    ax.text(1, -0.2, 'High', fontsize=9, color='#dc3545')
-    st.pyplot(fig)
+    st.markdown("---")
 
-    # Charts
-    with st.container():
-        row1 = st.columns(2)
-        with row1[0]:
-            st.markdown("### 👥 Outcome Distribution")
-            fig1, ax1 = plt.subplots()
-            filtered_df['Outcome'].value_counts().plot(kind='bar', color=['#1f77b4', '#ff7f0e'], ax=ax1)
-            ax1.set_xticks([0, 1])
-            ax1.set_xticklabels(['No Diabetes', 'Diabetes'])
-            ax1.set_ylabel("Count")
-            st.pyplot(fig1)
+    # --- Charts: Outcome Count and Ratio ---
+    c1, c2 = st.columns([1.3, 1])
+    with c1:
+        st.markdown("#### 📊 Outcome Count")
+        fig_outcome = px.histogram(df, x="Outcome", color="Outcome", barmode="group",
+                                   color_discrete_map={0: '#2b7bba', 1: '#e74c3c'},
+                                   labels={"Outcome": "Diabetes Status"},
+                                   category_orders={"Outcome": [0, 1]})
+        fig_outcome.update_layout(height=300, xaxis_title="", yaxis_title="Count", showlegend=False)
+        fig_outcome.update_xaxes(tickvals=[0, 1], ticktext=["No Diabetes", "Diabetes"])
+        st.plotly_chart(fig_outcome, use_container_width=True)
 
-        with row1[1]:
-            st.markdown("### 📊 Glucose Distribution")
-            fig2, ax2 = plt.subplots()
-            sns.histplot(data=filtered_df, x="Glucose", hue="Outcome", kde=True, palette="Set2", ax=ax2)
-            st.pyplot(fig2)
+    with c2:
+        st.markdown("#### 🧁 Outcome Ratio")
+        pie_data = df["Outcome"].value_counts().rename({0: "No Diabetes", 1: "Diabetes"})
+        fig_pie = px.pie(pie_data, values=pie_data.values, names=pie_data.index,
+                         color=pie_data.index,
+                         color_discrete_map={"No Diabetes": "#27ae60", "Diabetes": "#e74c3c"})
+        fig_pie.update_layout(height=300, showlegend=True)
+        st.plotly_chart(fig_pie, use_container_width=True)
 
-    row2 = st.columns(2)
-    with row2[0]:
-        st.markdown("### 📦 BMI Boxplot")
-        fig3, ax3 = plt.subplots()
-        sns.boxplot(x="Outcome", y="BMI", data=filtered_df, palette="pastel", ax=ax3)
-        st.pyplot(fig3)
+    st.markdown("---")
 
-    with row2[1]:
-        st.markdown("### 🔗 Feature Correlation")
-        fig4, ax4 = plt.subplots(figsize=(6, 5))
-        sns.heatmap(filtered_df.select_dtypes(include="number").corr(), annot=True, fmt=".2f", cmap="coolwarm", ax=ax4)
-        st.pyplot(fig4)
+    # --- Interactive Slider for Glucose vs Age Group ---
+    st.markdown("#### 🎯 Glucose vs Age by Age Group")
 
-    st.markdown("### 🧬 Feature Distributions")
-    dist_cols = st.columns(3)
-    for i, feat in enumerate(['BloodPressure', 'Insulin', 'SkinThickness']):
-        with dist_cols[i]:
-            fig, ax = plt.subplots()
-            sns.histplot(data=filtered_df, x=feat, kde=True, ax=ax, color='#007acc')
-            ax.set_title(f"{feat}")
-            st.pyplot(fig)
+    age_bins = [20, 30, 40, 50, 60, 70, 90]
+    age_labels = ['20-29', '30-39', '40-49', '50-59', '60-69', '70+']
+    df["AgeGroup"] = pd.cut(df["Age"], bins=age_bins, labels=age_labels, right=False)
 
-    st.markdown("### 📋 Descriptive Statistics")
-    st.dataframe(filtered_df.describe().T.style.format("{:.1f}"))
+    selected_group = st.select_slider(
+        "Select Age Group:",
+        options=age_labels,
+        value=age_labels[2]
+    )
 
-    st.markdown("<p style='text-align:center;'>All visualizations reflect filtered data for <b>age group</b>.</p>", unsafe_allow_html=True)
+    filtered_df = df[df["AgeGroup"] == selected_group]
+
+    fig_slider = px.scatter(
+        filtered_df,
+        x="Age",
+        y="Glucose",
+        color="Outcome",
+        title=f"🧪 Glucose Levels for Age Group {selected_group}",
+        color_discrete_sequence=["#2ca02c", "#d62728"],
+        labels={"Outcome": "Diabetes"},
+        height=500
+    )
+
+    st.plotly_chart(fig_slider, use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("#### 📦 Feature Distributions")
+
+    dist1, dist2, dist3 = st.columns(3)
+    with dist1:
+        fig1 = px.histogram(df, x="Glucose", color="Outcome", nbins=40,
+                            color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig1.update_layout(title="Glucose Distribution", height=250)
+        st.plotly_chart(fig1, use_container_width=True)
+    with dist2:
+        fig2 = px.histogram(df, x="BMI", color="Outcome", nbins=40,
+                            color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig2.update_layout(title="BMI Distribution", height=250)
+        st.plotly_chart(fig2, use_container_width=True)
+    with dist3:
+        fig3 = px.histogram(df, x="Insulin", color="Outcome", nbins=40,
+                            color_discrete_sequence=["#1f77b4", "#ff7f0e"])
+        fig3.update_layout(title="Insulin Distribution", height=250)
+        st.plotly_chart(fig3, use_container_width=True)
+
+    st.markdown("---")
+
+    # --- Summary Table ---
+    st.markdown("#### 📋 Summary Statistics")
+    styled_df = df.describe().T.style.background_gradient(cmap="PuBu")
+    st.dataframe(styled_df, height=350)

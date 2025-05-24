@@ -1,0 +1,44 @@
+
+<style>
+/* Base body and font */
+body {
+    background-color: #f8fafc;
+    font-family: "Segoe UI", "Lato", sans-serif;
+}
+
+/* Header gradient */
+.reportview-container .main .block-container {
+    padding: 2rem;
+}
+[data-testid="stHeader"] {
+    background-color: transparent;
+}
+
+/* Sidebar styling */
+[data-testid="stSidebar"] {
+    background: linear-gradient(to bottom, #eaf4ff, #dbeafe);
+    color: #003366;
+    font-weight: 600;
+}
+
+/* Section boxes */
+.diabetes-box {
+    background-color: #fff6f6;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+}
+
+/* Metric text */
+.metric-label {
+    font-weight: bold;
+    color: #cc0000;
+}
+
+/* Buttons */
+button[kind="primary"] {
+    background-color: #cc0000 !important;
+    color: white !important;
+}
+</style>

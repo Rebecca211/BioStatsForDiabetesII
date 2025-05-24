@@ -1,44 +1,50 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from streamlit_option_menu import option_menu
 
 # Page config
 st.set_page_config(
-    page_title="🧬 Advanced Diabetes Risk Dashboard",
-    page_icon="💡",
+    page_title=" GlucoTrack |  DiabetesII Dashboard",
+    page_icon="",
     layout="wide"
 )
 
-# Custom header with styling
 st.markdown(
     """
     <style>
-    .reportview-container .main .block-container {
-        padding-top: 2rem;
-        padding-right: 2rem;
-        padding-left: 2rem;
-        padding-bottom: 2rem;
+    [data-testid="stMetric"] {
+        background: linear-gradient(to right, #d9afd9, #97d9e1);
+        padding: 20px;
+        border-radius: 15px;
+        color: #fff;
+        text-align: center;
+        box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
     }
-    .css-1rs6os.edgvbvh3 {
-        visibility: hidden;
+    [data-testid="stMetricLabel"] {
+        font-size: 1rem;
+        font-weight: 500;
+    }
+    .stDataFrame {
+        border-radius: 10px;
+        background: #ffffffcc;
+        backdrop-filter: blur(6px);
+        box-shadow: 0 0 10px #ccc;
+    }
+    .stSidebar {
+        background: linear-gradient(to bottom, #f2f2f2, #d9afd9);
+    }
+    .block-container {
+        padding: 1rem 2rem;
     }
     </style>
-    """, unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-    <div style="background: linear-gradient(to right, #2d3a4a, #4b6b8d); padding: 25px; border-radius: 12px; margin-bottom: 20px;">
-        <h1 style="color:white;text-align:center;">🧬 Advanced Diabetes Risk Dashboard</h1>
-        <h4 style="color:white;text-align:center;">Biostatistical Exploration + Predictive Analytics + Explainability</h4>
-    </div>
     """,
     unsafe_allow_html=True
 )
 
-# Load and clean data
+
+# Load dataset
 @st.cache_data
 def load_data():
     df = pd.read_csv("diabetes.csv")
@@ -51,38 +57,33 @@ def load_data():
 df, features = load_data()
 X = df[features]
 y = df['Outcome']
-
-# Train model
 model = LogisticRegression(max_iter=1000)
 model.fit(X, y)
 
-# Horizontal navigation
-selected_tab = option_menu(
-    menu_title=None,
-    options=["🏠 Overview", "🔮 Predict", "📊 Analytics", "📥 Recommendation","🧠 Explain", "📥 Export"],
-    icons=["house", "activity", "bar-chart", "brain", "cloud-download", "cloud-download"],
-    orientation="horizontal",
-    default_index=0
-)
+# Sidebar menu
+st.sidebar.title("📟 Navigate")
+selected_tab = st.sidebar.radio("Choose", [
+    "🏠 Overview", "🔮 Predict", "📊 Analytics", "📥 Recommendation", "🧠 Explain", "📥 Export"
+])
 
-# Import modules dynamically
+# Import pages
 from overview import render_overview
 from predict import render_predict
 from analytics import render_analytics
-from recommendation_page import render_recommendation_page  # ✅ not the function directly
+from recommendation_page import render_recommendation_page
 from explain import render_explain
 from export import render_export
 
-# Page router with animation
-with st.spinner("Loading..."):
+# Page switching
+with st.spinner("✨ Loading the vibe..."):
     if selected_tab == "🏠 Overview":
         render_overview(df)
     elif selected_tab == "🔮 Predict":
         render_predict(df, features, model)
     elif selected_tab == "📊 Analytics":
-         render_analytics(df, features, model)
+        render_analytics(df, features, model)
     elif selected_tab == "📥 Recommendation":
-         render_recommendation_page()
+        render_recommendation_page()
     elif selected_tab == "🧠 Explain":
         render_explain(df, features, model)
     elif selected_tab == "📥 Export":

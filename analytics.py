@@ -14,7 +14,7 @@ def render_analytics(df, features, model):
         return
 
     user_input = st.session_state['user_input']
-    user_array = np.array(list(user_input.values())).reshape(1, -1)
+    user_array = pd.DataFrame([user_input], columns=features)  # Ensures feature names
     user_prob = st.session_state['user_prediction']['prob']
 
     explainer = shap.Explainer(model, df[features])
