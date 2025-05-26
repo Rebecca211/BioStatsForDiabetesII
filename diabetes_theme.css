@@ -1,44 +1,105 @@
-
-<style>
-/* Base body and font */
+/* General body and layout */
 body {
-    background-color: #f8fafc;
-    font-family: "Segoe UI", "Lato", sans-serif;
+    background: linear-gradient(to bottom right, #f5f7fa, #c3dfe0);
+    font-family: 'Open Sans', sans-serif;
 }
 
-/* Header gradient */
-.reportview-container .main .block-container {
-    padding: 2rem;
-}
-[data-testid="stHeader"] {
-    background-color: transparent;
-}
-
-/* Sidebar styling */
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background: linear-gradient(to bottom, #eaf4ff, #dbeafe);
-    color: #003366;
+    background: #ffffff;
+    border-right: 1px solid #d3d3d3;
+    padding-top: 2rem;
+}
+
+    [data-testid="stSidebar"] .css-1d391kg {
+        padding-top: 2rem;
+    }
+
+.css-1d391kg > div > div {
     font-weight: 600;
+    font-size: 1rem;
+    color: #333;
 }
 
-/* Section boxes */
-.diabetes-box {
-    background-color: #fff6f6;
-    padding: 20px;
+/* Main container padding */
+.block-container {
+    padding: 1.5rem 3rem;
+    max-width: 95vw;
+}
+
+/* Metric cards */
+[data-testid="stMetric"] {
+    background: linear-gradient(to right, #e8f0fe, #dcefff);
     border-radius: 12px;
-    margin-bottom: 15px;
+    padding: 1.2rem;
     box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+    color: #1c1c1c;
+    text-align: center;
 }
 
-/* Metric text */
-.metric-label {
-    font-weight: bold;
-    color: #cc0000;
+[data-testid="stMetricLabel"] {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* DataFrames */
+.stDataFrame {
+    border-radius: 8px;
+    background: #ffffffcc;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 10px #cfd8dc;
+    overflow: auto;
 }
 
 /* Buttons */
-button[kind="primary"] {
-    background-color: #cc0000 !important;
-    color: white !important;
+.stButton > button {
+    border-radius: 6px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
-</style>
+
+    .stButton > button:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+    }
+
+/* Plotly background override */
+.js-plotly-plot .plot-container {
+    background-color: rgba(255, 255, 255, 0.0) !important;
+    border-radius: 8px;
+}
+
+/* Tooltip-like popups */
+.plotly .hoverlayer .hovertext {
+    background-color: #333 !important;
+    border-radius: 6px !important;
+    color: white !important;
+    font-size: 0.85rem;
+    padding: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Responsive tweak */
+@media screen and (max-width: 768px) {
+    .block-container {
+        padding: 0.5rem 1rem;
+    }
+
+    [data-testid="stSidebar"] {
+        font-size: 0.9rem;
+    }
+
+    [data-testid="stMetric"] {
+        padding: 0.8rem;
+    }
+
+    .stButton > button {
+        padding: 0.4rem 0.8rem;
+    }
+}

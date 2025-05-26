@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -16,16 +15,26 @@ st.markdown(
     <style>
     [data-testid="stMetric"] {
         background: linear-gradient(to right, #d9afd9, #97d9e1);
-        padding: 20px;
+        padding: 50;
         border-radius: 15px;
         color: #fff;
         text-align: center;
         box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
+
     }
     [data-testid="stMetricLabel"] {
         font-size: 1rem;
         font-weight: 500;
     }
+/* Sidebar title styling */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        padding-bottom: 0.5rem;
+     }
     .stDataFrame {
         border-radius: 10px;
         background: #ffffffcc;
@@ -62,8 +71,8 @@ model.fit(X, y)
 
 # Sidebar menu
 st.sidebar.title("📟 Navigate")
-selected_tab = st.sidebar.radio("Choose", [
-    "🏠 Overview", "🔮 Predict", "📊 Analytics", "📥 Recommendation", "🧠 Explain", "📥 Export"
+selected_tab = st.sidebar.radio("Select", [
+    "🏠 Overview", "🧠 Risk Score Estimator", "📊 Analytics", "📥 Recommendation", "📥 Export"
 ])
 
 # Import pages
@@ -71,20 +80,20 @@ from overview import render_overview
 from predict import render_predict
 from analytics import render_analytics
 from recommendation_page import render_recommendation_page
-from explain import render_explain
+#from explain import render_explain
 from export import render_export
 
 # Page switching
 with st.spinner("✨ Loading the vibe..."):
     if selected_tab == "🏠 Overview":
         render_overview(df)
-    elif selected_tab == "🔮 Predict":
+    elif selected_tab == "🧠 Risk Score Estimator":
         render_predict(df, features, model)
     elif selected_tab == "📊 Analytics":
         render_analytics(df, features, model)
     elif selected_tab == "📥 Recommendation":
         render_recommendation_page()
-    elif selected_tab == "🧠 Explain":
-        render_explain(df, features, model)
+    #elif selected_tab == "🧠 Explain":
+       # render_explain(df, features, model)
     elif selected_tab == "📥 Export":
         render_export(df, features)

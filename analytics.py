@@ -61,10 +61,14 @@ def render_analytics(df, features, model):
     with tab2:
         st.markdown("### 🧠 SHAP Explanation")
         try:
-            fig, ax = plt.subplots()
-            shap.plots.waterfall(user_shap[0], show=False)
-            st.pyplot(plt.gcf())
-            plt.clf()
+           fig, ax = plt.subplots()
+           shap.plots.waterfall(user_shap[0], show=False)
+           shap_path = "shap_summary_plot.png"
+           plt.savefig(shap_path, bbox_inches="tight")
+           st.session_state["shap_path"] = shap_path
+           st.pyplot(fig)
+           plt.close(fig)
+
         except Exception as e:
             st.error(f"❌ Error rendering SHAP plot: {e}")
 
@@ -88,8 +92,12 @@ def render_analytics(df, features, model):
             ax.grid(True, color="#DDDDDD")
             ax.spines["polar"].set_visible(False)
             ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
+            radar_path = "radar_profile_plot.png"
+            fig.savefig(radar_path, bbox_inches="tight")
+            st.session_state["radar_path"] = radar_path
             st.pyplot(fig)
             plt.close(fig)
+
         except Exception as e:
             st.error(f"❌ Error rendering radar chart: {e}")
 

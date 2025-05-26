@@ -94,7 +94,7 @@ def render_predict(df, features, model):
                 st_lottie(load_lottie("low_risk.json"), height=120)
 
             st.markdown("### 📱 Scan for Mobile")
-            app_url = "https://your-app-url.streamlit.app"
+            app_url = "https://biostatsfordiabetesii.streamlit.app/"
             qr_img = qrcode.make(app_url)
             buf = BytesIO()
             qr_img.save(buf, format="PNG")
