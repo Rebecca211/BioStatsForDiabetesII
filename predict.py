@@ -6,6 +6,7 @@ from streamlit_lottie import st_lottie
 import json
 from recommendation import render_recommendation
 
+
 def load_lottie(filepath):
     with open(filepath, "r") as f:
         return json.load(f)
@@ -16,7 +17,6 @@ def render_predict(df, features, model):
     bounds = {
         "Glucose": (50.0, 300.0),
         "BloodPressure": (40.0, 200.0),
-        "SkinThickness": (7.0, 99.0),
         "Insulin": (15.0, 900.0),
         "BMI": (10.0, 70.0),
         "Age": (1.0, 120.0)
@@ -72,13 +72,13 @@ def render_predict(df, features, model):
         # Show result in right column
         with col_result:
             st.markdown("### 🧠 Prediction Result")
-            st.metric("Prediction", "🩺 Diabetes" if manual_class else "✅ No Diabetes", f"{manual_prob*100:.1f}%")
+            st.metric( "","🩺 Diabetes" if manual_class else "✅ No Diabetes", f"{manual_prob*100:.1f}%")
 
             st.markdown(f"""
             <div style="background-color:#f0f0f0; border-radius:6px; padding:2px; margin: 5px 0;">
               <div style="width:{manual_prob*100:.1f}%; background-color:#007aff;
                           padding:6px; border-radius:5px; color:white; text-align:center; font-size:small;">
-                Confidence: {manual_prob*100:.1f}%
+                Risk of Diabetes: {manual_prob*100:.1f}%
               </div>
             </div>
             """, unsafe_allow_html=True)

@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
+
 # Page config
 st.set_page_config(
     page_title=" GlucoTrack |  DiabetesII Dashboard",
@@ -15,7 +16,7 @@ st.markdown(
     <style>
     [data-testid="stMetric"] {
         background: linear-gradient(to right, #d9afd9, #97d9e1);
-        padding: 50;
+        padding: 20;
         border-radius: 15px;
         color: #fff;
         text-align: center;
@@ -45,7 +46,7 @@ st.markdown(
         background: linear-gradient(to bottom, #f2f2f2, #d9afd9);
     }
     .block-container {
-        padding: 1rem 2rem;
+        padding: 1rem 1rem;
     }
     </style>
     """,
@@ -57,7 +58,7 @@ st.markdown(
 @st.cache_data
 def load_data():
     df = pd.read_csv("diabetes.csv")
-    features = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'Age']
+    features = ['Glucose', 'BloodPressure', 'Insulin', 'BMI', 'Age']
     for col in features:
         df[col] = df[col].replace(0, np.nan)
         df[col] = df[col].fillna(df[col].median())

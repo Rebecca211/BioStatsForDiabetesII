@@ -25,25 +25,32 @@ def render_overview(df):
 
     st.markdown("---")
 
-    # --- Bar & Pie Charts Row ---
+# --- Bar & Pie Charts Row ---
     col_bar, col_pie = st.columns(2)
 
-    fig_outcome = px.histogram(df, x="Outcome", color="Outcome", barmode="group",
-                               color_discrete_map={0: '#2b7bba', 1: '#e74c3c'},
-                               labels={"Outcome": "Diabetes Status"},
-                               category_orders={"Outcome": [0, 1]})
-    fig_outcome.update_layout(title="Outcome Count", height=300, xaxis_title="", yaxis_title="Count", showlegend=False)
+# Map numeric outcomes to labels
+    df["DiabetesStatus"] = df["Outcome"].map({0: "No Diabetes", 1: "Diabetes"})
 
-    pie_data = df["Outcome"].value_counts().rename({0: "No Diabetes", 1: "Diabetes"})
+# Bar chart with labeled X-axis
+    fig_outcome = px.histogram(df, x="DiabetesStatus", color="DiabetesStatus", barmode="group",
+                           color_discrete_map={"No Diabetes": '#0096FF', "Diabetes": '#e74c3c'},
+                           labels={"DiabetesStatus": "Diabetes Status", "count": "Count"})
+    fig_outcome.update_layout(title="Diabetes Outcome Count", height=300,
+                          xaxis_title="Diabetes Status", yaxis_title="Count", showlegend=False)
+
+# Pie chart (already correctly labeled)
+    pie_data = df["DiabetesStatus"].value_counts()
     fig_pie = px.pie(pie_data, values=pie_data.values, names=pie_data.index,
-                     color=pie_data.index,
-                     color_discrete_map={"No Diabetes": "#27ae60", "Diabetes": "#e74c3c"})
-    fig_pie.update_layout(title="Outcome Ratio", height=300)
+                 color=pie_data.index,
+                 color_discrete_map={"No Diabetes": "#0096FF", "Diabetes": "#e74c3c"})
+    fig_pie.update_layout(title="Diabetes Outcome Ratio", height=300)
 
+# Display charts
     with col_bar:
-        st.plotly_chart(fig_outcome, use_container_width=True)
+     st.plotly_chart(fig_outcome, use_container_width=True)
     with col_pie:
-        st.plotly_chart(fig_pie, use_container_width=True)
+      st.plotly_chart(fig_pie, use_container_width=True)
+
 
     st.markdown("---")
     st.markdown("#### 📦 Feature Distributions")
@@ -113,10 +120,18 @@ def render_overview(df):
 
     with col1:
         df["DiabetesLabel"] = df["Outcome"].map({0: "No Diabetes", 1: "Diabetes"})
-        fig_3d = px.scatter_3d(df, x="Age", y="BMI", z="Pregnancies", color="DiabetesLabel",
-                               color_discrete_map={"No Diabetes": "#2c3e50", "Diabetes": "#e74c3c"},
-                               opacity=0.7, size_max=5, title="Age, BMI, Pregnancies")
-        fig_3d.update_layout(scene=dict(xaxis_title="Age", yaxis_title="BMI", zaxis_title="Pregnancies", aspectmode='cube'))
+        fig_3d = px.scatter_3d(df, x="Age", y="BMI", z="Glucose", color="DiabetesLabel",
+                                   color_discrete_map={ "No Diabetes": "#1f77b4", "Diabetes": "#d62728"},      # vivid red
+                               opacity=0.7, size_max=1, title="Age, BMI, Glucose")
+        fig_3d.update_traces(marker=dict(size=3))  # smaller than default
+        fig_3d.update_layout(
+            scene=dict(
+            xaxis_title="Age",
+            yaxis_title="BMI",
+            zaxis_title="Glucose",
+            aspectmode='cube'
+             )
+         )
         st.plotly_chart(fig_3d, use_container_width=True)
 
     with col2:
